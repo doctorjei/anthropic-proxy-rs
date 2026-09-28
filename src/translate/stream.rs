@@ -1,6 +1,6 @@
 use crate::models::anthropic::{
     ContentBlockStart, Delta, DeltaUsage, ErrorData, MessageDeltaData, MessageStartData,
-    StreamEvent, Usage,
+    StreamEvent,
 };
 use crate::models::openai;
 use crate::translate::core;
@@ -73,10 +73,9 @@ fn message_start_event(state: &StreamState) -> StreamEvent {
                 .model
                 .clone()
                 .unwrap_or_else(|| state.fallback_model.clone()),
-            usage: Usage {
-                input_tokens: 0,
-                output_tokens: 0,
-            },
+            // No usage carried here. See `MessageStartData::usage` -- the honest
+            // value at this point is "unknown", and only an absent field says that.
+            usage: None,
         },
     }
 }
@@ -570,8 +569,11 @@ mod tests {
             assert_eq!(message.message_type, "message");
             assert_eq!(message.role, "assistant");
             assert_eq!(message.model, "my-fallback");
-            assert_eq!(message.usage.input_tokens, 0);
-            assert_eq!(message.usage.output_tokens, 0);
+            assert!(
+                message.usage.is_none(),
+                "message_start must not carry a zero-filled usage; the real numbers \
+                 belong to message_delta"
+            );
         } else {
             panic!("expected message_start");
         }
