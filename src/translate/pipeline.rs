@@ -178,8 +178,7 @@ pub fn translate_models_list(resp: openai::ModelsListResponse) -> anthropic::Mod
     }
 }
 
-
-/// Come models (e.g., Qwen) only accept one system message (position 0) &
+/// Some models (e.g., Qwen) only accept one system message (position 0) &
 /// reject others; we'll keep the leading run where it is & rewrite any system
 /// message appearing later as a 'user' turn so the model still sees the text.
 fn fold_trailing_system_messages(messages: &mut [openai::Message]) {
